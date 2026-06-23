@@ -1,0 +1,63 @@
+import type { Decision } from "../@types";
+import { areaMap, statusMap } from "../utils/translate";
+import { MessageCircle, Vote, Calendar } from 'lucide-react'
+
+interface DecisionCardProps extends React.ComponentProps<"div"> {
+    decision: Decision
+}
+
+export function DecisionCard({decision, ...props}: DecisionCardProps) {    
+
+    return (
+        <div 
+            className={`
+                flex flex-col border-2 border-gray-500 rounded-lg
+                p-5 gap-1 cursor-pointer hover:bg-gray-100 hover:border-purple-950
+                transition
+            `}
+            {...props}
+        >
+            <div className="flex justify-between">
+                <label className="font-bold text-xl">
+                    {
+                        areaMap[decision.area]
+                    }
+                </label>
+                <label className="font-semibold text-lg">
+                    {
+                        statusMap[decision.status]
+                    }
+                </label>
+            </div>
+            
+            <span>
+                {decision.titulo}
+            </span>
+
+            <div className="flex justify-between">
+                <div className="flex justify-between gap-8">
+                    <div className="flex gap-1 items-center">
+                        <MessageCircle size={16} className="border-gray-500" fill="gray"/>
+                        <span className="text-lg">{decision.inputsCount}</span>
+                    </div>
+                    <div className="flex gap-1 items-center">
+                        <Vote size={20} className="border-gray-500"/>
+                        <span className="text-lg">
+                        {decision.evidencesCount}
+                        </span>
+                    </div>
+                </div>
+                
+                <div className="flex gap-1 items-center">
+                    <Calendar size={18} className="border-gray-500"/>
+                    {
+                        new Date(decision.updatedAt)
+                        .toLocaleString('pt-BR', {
+                            dateStyle: 'short'
+                        })
+                    }
+                </div>
+            </div>
+        </div>
+    )
+}
