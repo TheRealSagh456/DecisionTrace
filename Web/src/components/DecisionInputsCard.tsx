@@ -1,5 +1,6 @@
 import type { DecisionInput } from "../@types";
 import { LucideEdit, LucideTrash } from 'lucide-react'
+import { confiancaMap, tipoMap } from "../utils/translate";
 
 interface DecisionInputCardProps extends React.ComponentProps<"div"> {
     input: DecisionInput
@@ -13,8 +14,7 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
         <div 
             className={`
                 flex flex-row border-2 border-gray-400 bg-white
-                p-5 cursor-pointer hover:bg-gray-300 hover:border-purple-950
-                transition justify-between items-center
+                p-5 justify-between items-center
             `}
             {...props}
         >
@@ -25,14 +25,14 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
                     }
                 </label>
                 <label>
-                    <label>Tipo: {input.tipo}</label>
+                    <label>Tipo: {tipoMap[input.tipo]}</label>
                 </label>
                 <div className="flex flex-row justify-between">
                     <label>
                         Fonte: {input.fonte}
                     </label>
                     <label>
-                        Confiança: {input.confianca}
+                        Confiança: {confiancaMap[input.confianca]}
                     </label>
                 </div>
             </div>
@@ -40,15 +40,17 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
             <div className="flex flex-row gap-2 pl-5">
                 <div className={`
                     bg-purple-200 rounded-lg 
-                    hover:bg-purple-300 transition    
+                    hover:bg-purple-300 transition 
+                    cursor-pointer  
                 `}
                 onClick={onEdit}>
                     <LucideEdit size={30} color="purple" className="p-1"/>
                 </div>
                 <div className={`
                     bg-red-200 rounded-lg 
-                    hover:bg-red-300 transition`
-                }
+                    hover:bg-red-300 transition
+                    cursor-pointer
+                `}
                 onClick={onDelete}>
                     <LucideTrash size={30} color="red" className="p-1"/>
                 </div>

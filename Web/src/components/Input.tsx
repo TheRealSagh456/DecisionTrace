@@ -1,7 +1,7 @@
 import type { UseFormRegisterReturn } from "react-hook-form"
 
 interface FormFieldProps {
-    label: string
+    label?: string
     type: "text" | "select" | "textarea" | "date"
     options?: {value: string, label: string}[]
     rows?: number
@@ -12,6 +12,7 @@ interface FormFieldProps {
     containerClassName?: string
     defaultValue?: string
     value?: string
+    error?: string
 }
 
 export function Input({
@@ -25,14 +26,17 @@ export function Input({
     className,
     defaultValue,
     value,
+    error,
     containerClassName
 } : FormFieldProps) {
 
     return (
         <div className={`flex-1 ${containerClassName ?? ''} ${disabled && "text-gray-800"}`}>
+            { label &&
             <label className="font-bold text-base">
                 {label}
             </label>
+            }
             <div>
                 {type === "textarea" && (
                     <textarea rows={rows ?? 3} 
@@ -81,6 +85,7 @@ export function Input({
                     />
                 )}
             </div>
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
         </div>
     )
 }

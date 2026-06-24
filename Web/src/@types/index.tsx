@@ -35,6 +35,12 @@ export interface DecisionInput {
   updatedAt: string
 }
 
+export interface DecisionsFilter {
+  status: Decision["status"] | undefined
+  area: Decision["area"] | undefined
+  impactoEsperado: Decision["impactoEsperado"] | undefined
+}
+
 export interface PaginatedDecisions {
   items: Decision[]
   page: number

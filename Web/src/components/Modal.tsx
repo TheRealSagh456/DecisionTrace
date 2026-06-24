@@ -2,7 +2,7 @@ import { LucideX } from "lucide-react"
 
 interface ModalProps {
   isOpen: boolean
-  title: string
+  title?: string
   onClose: () => void
   children: React.ReactNode
   deleting?: boolean
@@ -18,9 +18,11 @@ export function Modal({ isOpen, onClose, title, children, deleting}: ModalProps)
             ${deleting ? "items-center justify-center" : ""}
         `}>
             <div className={`flex justify-between`}>
-                <label className={`text-xl font-bold`}>
-                    {title}
-                </label>
+                {title && (
+                    <label className={`text-xl font-bold`}>
+                        {title}
+                    </label>
+                )}
                 
                 {!deleting && (
                     <div className="bg-red-300 hover:bg-red-400 cursor-pointer rounded-lg">

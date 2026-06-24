@@ -10,6 +10,7 @@ import { LucideCheck, LucideChevronLeft, LucideEdit, LucideEraser, LucidePlus, L
 import { DecisionInputCard } from "../components/DecisionInputsCard"
 import { Modal } from "../components/Modal"
 import { useForm, useWatch } from "react-hook-form"
+import { toast } from "sonner"
 
 export function DecisionDetails() {
     const [decision, setDecision] = useState<Decision>()
@@ -39,15 +40,18 @@ export function DecisionDetails() {
     
     const { 
         register: registerInput,
+        unregister: unregisterInput,
         handleSubmit: handleSubmitInput,
-        reset: resetInput 
+        reset: resetInput,
+        formState: {errors: inputErrors, isDirty: isDirtyInput}
     } = useForm<DecisionInput>()
     
     const { 
         register: registerDecision, 
         handleSubmit: handleSubmitDecision, 
         reset: resetDecision,
-        control: controlDecision
+        control: controlDecision,
+        formState: {errors: decisionErrors, isDirty: isDirtyDecision}
     } = useForm<DecisionFormData>()
 
     const editingStatus = useWatch({ control: controlDecision, name: "status" })
@@ -67,6 +71,9 @@ export function DecisionDetails() {
     
     async function onSubmitInput(data: DecisionInput) {
         if(editingInput) {
+            if(!isDirtyInput) {
+                return toast.error("NENHUMA ALTERAÇÂO FOI FEITA!")
+            }
             await api.put(`/inputs/${editingInput.idinput}`, data)
             setDecisionInputs(prev => prev.map(i => i.idinput === editingInput.idinput ? {...i, ...data} : i))
         } else {
@@ -76,6 +83,8 @@ export function DecisionDetails() {
         }
         setIsModalOpen(false)
         setEditingInput(null)
+        unregisterInput()
+        toast.success("INSUMO CRIADO COM SUCESSO")
     }
 
     useEffect(() => {
@@ -98,16 +107,46 @@ export function DecisionDetails() {
         }
     }, [isEditing])
 
+    useEffect(() => {
+        if(isEditing) {
+            resetDecision(prev => ({
+                ...prev,
+                decisaoTomada: undefined,
+                decidedAt: undefined,
+                resultadoRevisao: undefined,
+                resumoRevisao: undefined,
+                aprendizado: undefined,
+                proximaAcao: undefined,
+                reviewedAt: undefined,
+            }))
+        }
+    }, [editingStatus])
+
     async function onSubmitDecision(data: DecisionFormData) {
+        if(!isDirtyDecision) {
+            toast.error("NENHUMA EDIÇÂO FOI FEITA!")
+        }
+
+        const noEmptyValuesData = Object.fromEntries(
+            Object.entries(data).filter(([_, value]) => value !== undefined)
+        )
         console.log(data)
-        await api.put(`/decisions/${iddecision}`, data)
+        await api.put(`/decisions/${iddecision}`, noEmptyValuesData)
         setDecision(prev => prev ? {...prev, ...data} : prev)
         setIsEditing(false)
+        toast.success("DECISION EDITADA COM ÊXITO", {position: "bottom-right"})
+        navigate("/")
     }
 
     async function handleDeleteDecision() {
-        await api.delete(`/decisions/${iddecision}`)
-        navigate("/")
+        try{
+            await api.delete(`/decisions/${iddecision}`)
+            toast.success("DECISION APAGADA COM SUCESSO!", {position: "bottom-right"})
+            navigate("/")
+        } catch(err) {
+            console.log(err.response.data)
+            toast.error("FALHA EM APAGAR A DECISION!")
+        }
     }
 
 
@@ -119,7 +158,7 @@ export function DecisionDetails() {
     
     return (
         <DecisionContainer className="gap-4">
-            <form onSubmit={handleSubmitDecision(onSubmitDecision)}>
+            <form onSubmit={handleSubmitDecision(onSubmitDecision)} className="pb-10">
                 <Input
                     label="Área"
                     type="select"
@@ -132,7 +171,7 @@ export function DecisionDetails() {
                             label: areaMap[decision.area] 
                         }]
                     }
-                    register={isEditing ? registerDecision('area') : undefined}
+                    register={registerDecision('area')}
                     defaultValue={decision.area}
                     disabled={!isEditing}
                 />
@@ -149,7 +188,7 @@ export function DecisionDetails() {
                             label: impactoMap[decision.impactoEsperado]
                         }]
                     }
-                    register={isEditing ? registerDecision('impactoEsperado') : undefined}
+                    register={registerDecision('impactoEsperado')}
                     defaultValue={decision?.impactoEsperado}
                     disabled={!isEditing}
                 />
@@ -159,7 +198,7 @@ export function DecisionDetails() {
                     className="w-full border h-10 pl-2"
                     defaultValue={decision?.responsavel}
                     disabled={!isEditing}
-                    register={isEditing ? registerDecision('responsavel') : undefined}
+                    register={registerDecision('responsavel')}
                 />
 
                 <Input
@@ -174,7 +213,7 @@ export function DecisionDetails() {
                             label: statusMap[decision.status]
                         }]
                     }
-                    register={isEditing ? registerDecision('status') : undefined}
+                    register={registerDecision('status')}
                     defaultValue={decision?.status}
                     disabled={!isEditing}
                 />
@@ -206,15 +245,22 @@ export function DecisionDetails() {
                                 type="textarea"
                                 containerClassName="md:col-span-2"
                                 defaultValue={decision?.decisaoTomada || undefined}
-                                register={isEditing ? registerDecision('decisaoTomada') : undefined}
+                                register={isEditing ? registerDecision('decisaoTomada', {
+                                    required: "Decisão é obrigatória",
+                                    minLength: {value: 5, message: "Mínimo de 5 caracteres"}
+                                }) : undefined}
+                                error={decisionErrors.decisaoTomada?.message}
                                 disabled={!isEditing}
                             />
                             <Input
                                 label="Decidido em"
                                 type="date"
-                                containerClassName="md:col-span-2"
+                                containerClassName="md:col-span-2 pb-5"
                                 defaultValue={decision?.decidedAt || undefined}
-                                register={isEditing ? registerDecision('decidedAt') : undefined}
+                                register={isEditing ? registerDecision('decidedAt', {
+                                    required: "Data de decisão é obrigatória"
+                                }) : undefined}
+                                error={decisionErrors.decidedAt?.message}
                                 disabled={!isEditing}
                             />
                         </div>
@@ -224,7 +270,7 @@ export function DecisionDetails() {
                     (isEditing ? editingStatus : decision?.status) === "reversed") && (
                         <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Input
-                                label="Resultado da Revisão"
+                                label="Resultado da revisão"
                                 type="select"
                                 className="w-full border pl-2 h-10"
                                 options={isEditing ? resultadoOptions : [{ 
@@ -232,22 +278,33 @@ export function DecisionDetails() {
                                     label: resultadoMap[decision?.resultadoRevisao ?? "inconclusive"] 
                                 }]}
                                 defaultValue={decision?.resultadoRevisao || undefined}
-                                register={isEditing ? registerDecision('resultadoRevisao') : undefined}
+                                register={isEditing ? registerDecision('resultadoRevisao', {
+                                    required: "Resultado da revisão é obrigatório",
+                                    minLength: {value: 10, message: "Mínimo de 10 caracteres"}
+                                }) : undefined}
+                                error={decisionErrors.resultadoRevisao?.message}
                                 disabled={!isEditing}
                             />
                             <Input
                                 label="Revisado em"
                                 type="date"
                                 defaultValue={decision?.reviewedAt || undefined}
-                                register={isEditing ? registerDecision('reviewedAt') : undefined}
+                                register={isEditing ? registerDecision('reviewedAt', {
+                                    required: "Data de revisão é obrigatória"
+                                }) : undefined}
+                                error={decisionErrors.reviewedAt?.message}
                                 disabled={!isEditing}
                             />
                             <Input
-                                label="Resumo da Revisão"
+                                label="Resumo da revisão"
                                 type="textarea"
                                 containerClassName="md:col-span-2"
                                 defaultValue={decision?.resumoRevisao || undefined}
-                                register={isEditing ? registerDecision('resumoRevisao') : undefined}
+                                register={isEditing ? registerDecision('resumoRevisao', {
+                                    required: "Resumo da revisão é obrigatório",
+                                    minLength: {value: 10, message: "Mínimo de 10 caracteres"}
+                                }) : undefined}
+                                error={decisionErrors.resumoRevisao?.message}
                                 disabled={!isEditing}
                             />
                             <Input
@@ -255,7 +312,11 @@ export function DecisionDetails() {
                                 type="textarea"
                                 containerClassName="md:col-span-2"
                                 defaultValue={decision?.aprendizado || undefined}
-                                register={isEditing ? registerDecision('aprendizado') : undefined}
+                                register={isEditing ? registerDecision('aprendizado', {
+                                    required: "Aprendizado é obrigatório",
+                                    minLength: {value: 10, message: "Mínimo de 10 caracteres"}
+                                }) : undefined}
+                                error={decisionErrors.aprendizado?.message}
                                 disabled={!isEditing}
                             />
                             <Input
@@ -263,75 +324,14 @@ export function DecisionDetails() {
                                 type="textarea"
                                 containerClassName="md:col-span-2"
                                 defaultValue={decision?.proximaAcao || undefined}
-                                register={isEditing ? registerDecision('proximaAcao') : undefined}
+                                register={isEditing ? registerDecision('proximaAcao', {
+                                    required: "Resumo da revisão é obrigatório",
+                                    minLength: {value: 8, message: "Mínimo de 8 caracteres"}
+                                }) : undefined}
+                                error={decisionErrors.proximaAcao?.message}
                                 disabled={!isEditing}
                             />
                         </div>
-                )}
-            
-                {decision?.status === "decided" && (
-                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input 
-                            label="Decisão Tomada" 
-                            type="textarea"
-                            containerClassName="md:col-span-2"
-                            defaultValue={decision?.decisaoTomada || undefined}
-                            disabled
-                        />
-
-                        <Input
-                            label="Decidido em"
-                            type="date"
-                            containerClassName="md:col-span-2"
-                            defaultValue={decision?.decidedAt || undefined}
-                            disabled
-                        />
-                    </div>
-                )}
-
-                {decision?.status === "reviewed" && (
-                    <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                            label="Resultado da Revisão"
-                            type="select"
-                            className="w-full border pl-2 h-10"
-                            options={[
-                                { 
-                                    value: decision.resultadoRevisao ?? "inconclusive",
-                                    label: resultadoMap[decision.resultadoRevisao ?? "inconclusive"] 
-                                }
-                            ]}
-                            defaultValue={decision?.resultadoRevisao || undefined}  
-                            disabled
-                        />
-                        <Input
-                            label="Revisado em"
-                            type="date"
-                            placeholder={decision?.reviewedAt || undefined}
-                            disabled
-                        />
-                        <Input
-                            label="Resumo da Revisão"
-                            type="textarea"
-                            containerClassName="md:col-span-2"
-                            defaultValue={decision?.resumoRevisao || undefined}
-                            disabled
-                        />
-                        <Input
-                            label="Aprendizado"
-                            type="textarea"
-                            containerClassName="md:col-span-2"
-                            defaultValue={decision?.aprendizado || undefined}
-                            disabled
-                        />
-                        <Input
-                            label="Próxima ação"
-                            type="textarea"
-                            containerClassName="md:col-span-2"
-                            defaultValue={decision?.proximaAcao || undefined}
-                            disabled
-                        />
-                    </div>
                 )}
                 
                 <div>
@@ -371,13 +371,14 @@ export function DecisionDetails() {
                                     setDecisionInputs(prev => 
                                         prev.filter(i => i.idinput !== input.idinput)
                                     )
+                                    toast.success("INSUMO REMOVIDO COM SUCESSO")
                                 }}
                             />
                         ))}
                     </div>
                 </div>
 
-                <div className="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-4">
+                <div className="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-6">
                     <Button
                         type="button"
                         variant="back" 
@@ -390,7 +391,7 @@ export function DecisionDetails() {
                         variant="new" 
                         className="w-full sm:w-auto px-6 py-2 gap-2"
                         type="button"
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => setIsEditing(!isEditing)}
                     >
                         <LucideEdit size={16}/>Editar
                     </Button>
@@ -406,6 +407,7 @@ export function DecisionDetails() {
                         <Button 
                             variant="save"
                             type="submit"
+                            disabled={!isDirtyDecision}
                         >
                             <div className="flex gap-2 items-center px-2">
                                 <LucideSave size={20}/>
@@ -421,50 +423,64 @@ export function DecisionDetails() {
                         title="Novo Insumo" 
                         onClose={() => {
                             setEditingInput(null)
-                            setIsModalOpen(false)}
-                        }
+                            setIsModalOpen(false)
+                            unregisterInput(["tipo", "descricao", "fonte", "confianca"])
+                        }}
                     >
                         <label>
                             {decision.titulo}    
                         </label>
-                        <form className="flex flex-col gap-2 pt-3" onSubmit={handleSubmitInput(onSubmitInput)}>       
+                        <div className="flex flex-col gap-2 pt-3" onSubmit={handleSubmitInput(onSubmitInput)}>       
                             <Input
                                 type="select"
                                 label="Tipo"
                                 options={tipoOptions}
                                 className="w-full border pl-3 h-10"
-                                register={registerInput("tipo")}
+                                register={registerInput("tipo", {
+                                    required: "Tipo é obrigatório"
+                                })}
                                 defaultValue={editingInput?.tipo}
+                                error={inputErrors.tipo?.message}
                             />
                             <Input
                                 type="textarea"
                                 label="Descrição"
-                                register={registerInput("descricao")}
+                                register={registerInput("descricao", {
+                                    required: "Descrição é obrigatória"
+                                })}
                                 placeholder="Insira a descrição..."
                                 defaultValue={editingInput?.descricao}
-                                
+                                error={inputErrors.descricao?.message}
                             />
                             <Input
                                 type="text"
                                 label="Fonte"
                                 className="w-full border pl-3 h-10"
-                                register={registerInput("fonte")}
+                                register={registerInput("fonte", {
+                                    required: "Fonte é obrigatória"
+                                })}
                                 defaultValue={editingInput?.fonte}
+                                error={inputErrors.fonte?.message}
                             />
                             <Input
                                 type="select"
                                 label="Confiança"
                                 options={confiancaOptions}
                                 className="w-full border pl-3 h-10"
-                                register={registerInput("confianca")}
+                                register={registerInput("confianca", {
+                                    required: "Nivel de confiança é obrigatório"
+                                })}
                                 defaultValue={editingInput?.confianca}
+                                error={inputErrors.confianca?.message}
                             />
                         <div className="flex flex-row justify-center items-center py-5 gap-4">
                             
                             <Button
                                 variant="save" 
                                 className="gap-1 w-full"
-                                type="submit"
+                                type="button"
+                                onClick={handleSubmitInput(onSubmitInput)}
+                                disabled={!isDirtyInput}
                             >
                                 <LucideCheck size={20}/>
                                 <label>
@@ -472,7 +488,7 @@ export function DecisionDetails() {
                                 </label>
                             </Button>
                         </div>
-                        </form>
+                        </div>
                     </Modal>
                 )}
 

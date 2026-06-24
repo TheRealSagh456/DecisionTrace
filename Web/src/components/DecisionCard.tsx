@@ -12,7 +12,7 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
         <div 
             className={`
                 flex flex-col border-2 border-gray-500 rounded-lg bg-white
-                p-5 gap-1 cursor-pointer hover:bg-gray-100 hover:border-purple-950
+                p-3 px-5 gap-1 cursor-pointer hover:bg-gray-100 hover:border-purple-950
                 transition
             `}
             {...props}
@@ -30,14 +30,14 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
                 </label>
             </div>
             
-            <span>
-                {decision.titulo}
+            <span className="wrap-break-words line-clamp-1 py-1">
+                {decision.contexto}
             </span>
 
             <div className="flex justify-between">
                 <div className="flex justify-between gap-8">
                     <div className="flex gap-1 items-center">
-                        <MessageCircle size={16} className="border-gray-500" fill="gray"/>
+                        <MessageCircle size={16} className="border-gray-900 fill-purple-600"/>
                         <span className="text-lg">{decision.inputsCount}</span>
                     </div>
                     <div className="flex gap-1 items-center">
@@ -49,7 +49,7 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
                 </div>
                 
                 <div className="flex gap-1 items-center">
-                    <Calendar size={18} className="border-gray-500"/>
+                    <Calendar size={18} className="border-gray-900 fill-purple-600"/>
                     {
                         new Date(decision.updatedAt)
                         .toLocaleString('pt-BR', {
