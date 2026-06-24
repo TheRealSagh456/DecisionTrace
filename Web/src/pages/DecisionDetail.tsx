@@ -49,6 +49,7 @@ export function DecisionDetails() {
     const { 
         register: registerDecision, 
         handleSubmit: handleSubmitDecision, 
+        unregister: unregisterDecision,
         reset: resetDecision,
         control: controlDecision,
         formState: {errors: decisionErrors, isDirty: isDirtyDecision}
@@ -105,22 +106,21 @@ export function DecisionDetails() {
                 reviewedAt: decision.reviewedAt ?? undefined,
             })
         }
-    }, [isEditing])
+    }, [isEditing, decision, resetDecision])
 
     useEffect(() => {
         if(isEditing) {
-            resetDecision(prev => ({
-                ...prev,
-                decisaoTomada: undefined,
-                decidedAt: undefined,
-                resultadoRevisao: undefined,
-                resumoRevisao: undefined,
-                aprendizado: undefined,
-                proximaAcao: undefined,
-                reviewedAt: undefined,
-            }))
+            unregisterDecision([
+                "decisaoTomada",
+                "decidedAt",
+                "resultadoRevisao",
+                "resumoRevisao",
+                "aprendizado",
+                "proximaAcao",
+                "reviewedAt",
+            ])
         }
-    }, [editingStatus])
+    }, [editingStatus, isEditing, unregisterDecision])
 
     async function onSubmitDecision(data: DecisionFormData) {
         if(!isDirtyDecision) {
@@ -331,6 +331,14 @@ export function DecisionDetails() {
                                 error={decisionErrors.proximaAcao?.message}
                                 disabled={!isEditing}
                             />
+                            <div className="md:col-span-2 flex flex-row justify-between">
+                                <label>
+                                    Criado: {new Date(decision.createdAt).toLocaleDateString("pt-BR")}
+                                </label>
+                                <label>
+                                    Atualizado: {new Date(decision.updatedAt).toLocaleDateString("pt-BR")}
+                                </label>
+                            </div>
                         </div>
                 )}
                 
@@ -349,6 +357,7 @@ export function DecisionDetails() {
                             onClick={() => {
                                 setIsModalOpen(true)
                                 setEditingInput(null)
+                                console.log(isDirtyDecision)
                             }}
                         >
                             <LucidePlus size={20}/>
@@ -446,7 +455,8 @@ export function DecisionDetails() {
                                 type="textarea"
                                 label="Descrição"
                                 register={registerInput("descricao", {
-                                    required: "Descrição é obrigatória"
+                                    required: "Descrição é obrigatória",
+                                    minLength: {value: 10, message: "Mínimo de 10 caracteres"}
                                 })}
                                 placeholder="Insira a descrição..."
                                 defaultValue={editingInput?.descricao}
@@ -457,7 +467,8 @@ export function DecisionDetails() {
                                 label="Fonte"
                                 className="w-full border pl-3 h-10"
                                 register={registerInput("fonte", {
-                                    required: "Fonte é obrigatória"
+                                    required: "Fonte é obrigatória",
+                                    minLength: {value: 2, message: "Mínimo de 2 caracteres"}
                                 })}
                                 defaultValue={editingInput?.fonte}
                                 error={inputErrors.fonte?.message}
@@ -509,7 +520,7 @@ export function DecisionDetails() {
                                     variant="back" 
                                     onClick={() => setIsDeleting(false)}
                                 >
-                                    <label>
+                                    <label className="cursor-pointer">
                                         Cancelar
                                     </label>
                                 </Button>
@@ -519,7 +530,7 @@ export function DecisionDetails() {
                                     type="button"
                                 >
                                     <LucideEraser size={20}/>
-                                    <label>
+                                    <label className="cursor-pointer">
                                         Apagar
                                     </label>
                                 </Button>

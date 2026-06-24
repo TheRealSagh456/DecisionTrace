@@ -6,13 +6,13 @@ export interface Decision {
   impactoEsperado: "low" | "medium" | "high" | "critical"
   status: "draft" | "under_analysis" | "decided" | "reviewed" | "reversed"
   responsavel: string
-  decisaoTomada: string | null
-  decidedAt: string | null
-  resultadoRevisao: "confirmed" | "partially_confirmed" | "invalidated" | "inconclusive" | null
-  resumoRevisao: string | null
-  aprendizado: string | null
-  proximaAcao: string | null
-  reviewedAt: string | null
+  decisaoTomada: string | undefined
+  decidedAt: string | undefined
+  resultadoRevisao: "confirmed" | "partially_confirmed" | "invalidated" | "inconclusive" | undefined
+  resumoRevisao: string | undefined
+  aprendizado: string | undefined
+  proximaAcao: string | undefined
+  reviewedAt: string | undefined
   createdAt: string
   updatedAt: string
   inputsCount: number

@@ -29,6 +29,7 @@ export function DecisionList() {
     })
 
     const navigate = useNavigate()
+    const {register, handleSubmit} = useForm()
 
     useEffect(() => {
         const limit = 5
@@ -51,15 +52,9 @@ export function DecisionList() {
         }
         fetchDecisions()
     }, [debouncedSearch, filterData, page])
-
-    if(!decisions) return (
-        <DecisionContainer>
-            <p className="text-lg">Carregando...</p>
-        </DecisionContainer>
-    )
-
-    const {register, handleSubmit} = useForm()
-
+    
+    
+    
     function onFilter(data: DecisionsFilter) {
         setFitlerData({
             status: data.status || undefined,
@@ -70,7 +65,7 @@ export function DecisionList() {
         setIsFilterUp(false)
         setIsFiltering(true)
     }
-
+    
     function removeFilters() {
         setFitlerData({
             status: undefined,
@@ -81,6 +76,12 @@ export function DecisionList() {
         setIsFilterUp(false)
         setIsFiltering(false)
     }
+    
+    if(decisions.length === 0) return (
+        <DecisionContainer>
+            <p className="text-lg items-center justify-center">Carregando...</p>
+        </DecisionContainer>
+    )
 
     return (
         <DecisionContainer>
@@ -90,18 +91,24 @@ export function DecisionList() {
                 onSearch={setSearch}
             />
             <div className="flex flex-col gap-7">
-                {decisions.map((decision) => (
-                    <DecisionCard 
-                        key={decision.iddecision} 
-                        decision={decision}
-                        onClick={() => navigate(`/decisions/${decision.iddecision}`)}
-                    />
-                ))}
+                {decisions.length > 0 ? 
+                    decisions.map((decision) => (
+                        <DecisionCard 
+                            key={decision.iddecision} 
+                            decision={decision}
+                            onClick={() => navigate(`/decisions/${decision.iddecision}`)}
+                        />
+                    )) : (
+                        <label className="flex items-center justify-center font-bold">
+                            Nenhuma decisão encontrada...
+                        </label>
+                    )
+                }
             </div>
 
             {isFilterUp && (
                 <Modal isOpen={isFilterUp} onClose={() => setIsFilterUp(false)} title="Filtrar por:">
-                    <form onSubmit={handleSubmit(onFilter)}>
+                    <form onSubmit={handleSubmit(data => onFilter(data as DecisionsFilter))}>
                         <div className="py-3 my-4 px-5 flex flex-col gap-5 bg-gray-50 rounded-lg">
                             <Input 
                                 type="select" 
