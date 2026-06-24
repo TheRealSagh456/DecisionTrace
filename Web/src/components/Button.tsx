@@ -1,6 +1,6 @@
 
 interface ButtonProps extends React.ComponentProps<'button'>{
-    variant: "new" | "input" | "cancel" | "save"
+    variant: "new" | "input" | "cancel" | "save" | "back"
 }
 
 export function Button({children, variant, className, ...props}: ButtonProps) {
@@ -10,12 +10,13 @@ export function Button({children, variant, className, ...props}: ButtonProps) {
         input: "bg-sky-600 hover:bg-sky-700",
         cancel: "bg-red-600 hover:bg-red-700",
         save: "bg-green-600 hover:bg-green-700",
+        back: "bg-gray-600 hover:bg-gray-700"
     }
 
     return (
             <button className={`
                 flex items-center justify-center
-                px-4 py-2 rounded-md text-white
+                px-2 py-2 rounded-md text-white
                 font-medium transition-colors
                 ${buttonStyle[variant]}
                 ${className ?? ""}

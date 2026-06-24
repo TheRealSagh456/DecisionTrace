@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { type Decision } from "../@types"
 import { api } from "../services/api"
-import { DecisionCard } from "../components/Card"
+import { DecisionCard } from "../components/DecisionCard"
 import { DecisionContainer } from "../components/Container"
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components/Button"
@@ -19,6 +19,12 @@ export function DecisionList() {
         }
         fetchDecisions()
     }, [])
+
+    if(!decisions) return (
+        <DecisionContainer>
+            <p className="text-lg">Carregando...</p>
+        </DecisionContainer>
+    )
     
     return (
         <DecisionContainer>

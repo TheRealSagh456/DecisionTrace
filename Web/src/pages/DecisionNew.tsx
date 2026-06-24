@@ -1,47 +1,25 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { DecisionContainer } from "../components/Container";
 import { Input } from "../components/Input";
 import type { DecisionFormData } from "../@types";
-import { areaMap, impactoMap, resultadoMap, statusMap } from "../utils/translate";
+import { areaOptions, impactoOptions, resultadoOptions, statusOptions } from "../utils/translate";
 import { Button } from "../components/Button";
+import { useNavigate } from "react-router-dom";
+import { api } from "../services/api";
 
 export function DecisionNew() {
 
-    const {register, handleSubmit, watch, formState: {errors}} = useForm<DecisionFormData>()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {register, handleSubmit, control, formState: {errors}} = useForm<DecisionFormData>()
 
-    const status = watch("status")
+    const status = useWatch({ control, name: "status" })
+    
+    const navigate = useNavigate()
 
-    function onSubmit(data) {
-        console.log(data)
+    function onSubmit(data: DecisionFormData) {
+        api.post("/decisions", data)
+        navigate("/")
     }
-
-    const statusOptions = Object.entries(statusMap).map(
-        ([value, label]) => ({
-            value,
-            label,
-        })
-    )
-    
-    const areaOptions = Object.entries(areaMap).map(
-        ([value, label]) => ({
-            value,
-            label,
-        })
-    )
-    
-    const impactoOptions = Object.entries(impactoMap).map(
-        ([value, label]) => ({
-            value,
-            label,
-        })
-    )
-
-    const resultadoOptions = Object.entries(resultadoMap).map(
-        ([value, label]) => ({
-            value,
-            label,
-        })
-    )
 
     return (
         <DecisionContainer>
@@ -52,7 +30,7 @@ export function DecisionNew() {
                     <Input
                         label="Área"
                         type="select"
-                        className="w-full border bg-gray-100 pl-3 h-10"
+                        className="w-full border pl-3 h-10"
                         register={register('area')}
                         options={areaOptions}
                     />
@@ -60,14 +38,14 @@ export function DecisionNew() {
                     <Input
                         label="Impacto Esperado"
                         type="select"
-                        className="w-full border bg-gray-100 pl-3 h-10"
+                        className="w-full border pl-3 h-10"
                         register={register('impactoEsperado')}
                         options={impactoOptions}
                     />
                     <Input 
                         label="Responsável" 
                         type="text" 
-                        className="w-full border bg-gray-100 h-10 pl-2"
+                        className="w-full border h-10 pl-2"
                         placeholder="Insira um nome..."
                         register={register('responsavel')}
                     />
@@ -75,7 +53,7 @@ export function DecisionNew() {
                     <Input
                         label="Status"
                         type="select"
-                        className="w-full border bg-gray-100 pl-3 h-10"
+                        className="w-full border pl-3 h-10"
                         register={register('status')}
                         options={statusOptions}
                     />
@@ -105,6 +83,7 @@ export function DecisionNew() {
                             type="textarea"
                             register={register("decisaoTomada")}
                             containerClassName="md:col-span-2"
+                            placeholder="Insira a decisão aqui..."
                         />
 
                         <Input
@@ -116,12 +95,12 @@ export function DecisionNew() {
                     </div>
                 )}
 
-                {status === "reviewed" && (
+                {(status === "reviewed" || status === "reversed") && (
                     <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
-                            label="Resultado da Revisão"
+                            label="Resultado da revisão"
                             type="select"
-                            className="w-full border bg-gray-100 pl-3 h-10"
+                            className="w-full border pl-3 h-10"
                             options={resultadoOptions}
                             register={register("resultadoRevisao")}
                         />
@@ -131,7 +110,7 @@ export function DecisionNew() {
                             register={register("reviewedAt")}
                         />
                         <Input
-                            label="Resumo da Revisão"
+                            label="Resumo da revisão"
                             type="textarea"
                             containerClassName="md:col-span-2"
                             register={register("resumoRevisao")}
@@ -151,10 +130,19 @@ export function DecisionNew() {
                     </div>
                 )}
                 <div className="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-4">
-                    <Button variant="save" type="submit" className="w-full sm:w-auto px-6 py-2">
+                    <Button 
+                        variant="save" 
+                        type="submit" 
+                        className="w-full sm:w-auto px-6 py-2"
+                    >
                         Salvar
                     </Button>
-                    <Button type="button" variant="cancel" className="w-full sm:w-auto px-6 py-2">
+                    <Button 
+                        type="button" 
+                        variant="cancel"
+                        className="w-full sm:w-auto px-6 py-2"
+                        onClick={() => navigate("/")}
+                    >
                         Cancelar
                     </Button>
                 </div>

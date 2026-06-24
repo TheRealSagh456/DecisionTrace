@@ -11,7 +11,7 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
     return (
         <div 
             className={`
-                flex flex-col border-2 border-gray-500 rounded-lg
+                flex flex-col border-2 border-gray-500 rounded-lg bg-white
                 p-5 gap-1 cursor-pointer hover:bg-gray-100 hover:border-purple-950
                 transition
             `}

@@ -10,6 +10,8 @@ interface FormFieldProps {
     register?: UseFormRegisterReturn
     className?: string
     containerClassName?: string
+    defaultValue?: string
+    value?: string
 }
 
 export function Input({
@@ -21,11 +23,14 @@ export function Input({
     placeholder,
     register,
     className,
+    defaultValue,
+    value,
     containerClassName
 } : FormFieldProps) {
+
     return (
-        <div className={`flex-1 ${containerClassName ?? ''}`}>
-            <label className="font-bold text-lg">
+        <div className={`flex-1 ${containerClassName ?? ''} ${disabled && "text-gray-800"}`}>
+            <label className="font-bold text-base">
                 {label}
             </label>
             <div>
@@ -34,14 +39,30 @@ export function Input({
                         {...register} 
                         placeholder={placeholder} 
                         disabled={disabled} 
-                        className={`w-full border bg-gray-100 py-1 pl-2`}
+                        className={`w-full border py-1 px-3 ${disabled ? "bg-gray-300" : "bg-white"}`}
+                        defaultValue={defaultValue}
+                        value={value}
                     />
                 )}
                 {type === "text" && (
-                    <input type="text" {...register} placeholder={placeholder} disabled={disabled} className={className}/>
+                    <input 
+                        type="text" 
+                        {...register} 
+                        placeholder={placeholder} 
+                        disabled={disabled} 
+                        className={`px-3 ${disabled ? "bg-gray-300" : "bg-white"} ${className}`} 
+                        defaultValue={defaultValue}
+                        value={value}
+                    />
                 )}
                 {type === "select" && (
-                    <select {...register} disabled={disabled} className={className}>
+                    <select 
+                        {...register} 
+                        disabled={disabled} 
+                        className={`px-3 ${disabled ? "bg-gray-300" : "bg-white"} ${className}`} 
+                        defaultValue={defaultValue}
+                        value={value}
+                    >
                         {options?.map(option => (
                             <option key={option.value} value={option.value}>
                                 {option.label}
@@ -51,7 +72,13 @@ export function Input({
                 )}
 
                 {type === "date" && (
-                    <input type="date" {...register} className="w-full border bg-gray-100 py-1 pl-2 h-10"/>
+                    <input 
+                        type="date" 
+                        {...register} 
+                        className={`w-full border py-1 pl-2 h-10 ${disabled ? "bg-gray-300" : "bg-white"}`} 
+                        defaultValue={defaultValue}
+                        value={value}
+                    />
                 )}
             </div>
         </div>

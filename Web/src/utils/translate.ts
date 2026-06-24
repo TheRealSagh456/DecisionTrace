@@ -28,3 +28,56 @@ export const resultadoMap: Record<string, string> = {
   invalidated: "Invalidada", 
   inconclusive: "Inconclusivo"
 }
+
+export const tipoMap: Record<string, string> = {
+  hypothesis: "Hipótese",
+  evidence: "Evidência"
+}
+
+export const confiancaMap: Record<string, string> = {
+  low: "Baixa",
+  medium: "Média",
+  high: "Alta"
+}
+
+export const tipoOptions =  Object.entries(tipoMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)
+
+export const confiancaOptions =  Object.entries(confiancaMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)
+
+export const statusOptions = Object.entries(statusMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)
+
+export const areaOptions = Object.entries(areaMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)
+
+export const impactoOptions = Object.entries(impactoMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)
+
+export const resultadoOptions = Object.entries(resultadoMap).map(
+    ([value, label]) => ({
+        value,
+        label,
+    })
+)

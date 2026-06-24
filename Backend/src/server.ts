@@ -9,7 +9,8 @@ dotenv.config()
 const app = Fastify({logger: true})
 
 app.register(cors, {
-    origin: '*'
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
 })
 
 app.register(decisionsRoutes)
