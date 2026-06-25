@@ -30,7 +30,7 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
                 </label>
             </div>
             
-            <span className="wrap-break-words line-clamp-1 py-1">
+            <span className="wrap-break-words line-clamp-2 truncate py-1">
                 {decision.contexto}
             </span>
 

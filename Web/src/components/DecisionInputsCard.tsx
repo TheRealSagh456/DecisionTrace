@@ -18,8 +18,8 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
             `}
             {...props}
         >
-            <div className="flex flex-col flex-1">
-                <label className="wrap-break-words line-clamp-1">
+            <div className="flex flex-col flex-1 min-w-0">
+                <label className="break-all">
                     {
                         input.descricao
                     }
@@ -27,11 +27,11 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
                 <label>
                     <label>Tipo: {tipoMap[input.tipo]}</label>
                 </label>
-                <div className="flex flex-row justify-between">
-                    <label>
+                <div className="flex items-start gap-4">
+                    <label className="flex-1 break-all">
                         Fonte: {input.fonte}
                     </label>
-                    <label>
+                    <label className="shrink-0 whitespace-nowrap">
                         Confiança: {confiancaMap[input.confianca]}
                     </label>
                 </div>

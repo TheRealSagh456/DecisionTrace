@@ -7,7 +7,9 @@
     "dev": "nodemon --exec tsx src/server.ts",
     "start": "tsx src/server.ts",
     "seed": "tsx src/db/seed.ts",
-    "db": "npx tsx src/db/migrate.ts"
+    "db": "npx tsx src/db/migrate.ts",
+    "setup": "node setup.js",
+    "cook": "npm install && npm run setup && npm run db && npm run seed && npm run dev"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.0.0",
     "nodemon": "^3.1.14",
+    "shx": "^0.4.0",
     "tsx": "^4.22.4"
   }
 }
