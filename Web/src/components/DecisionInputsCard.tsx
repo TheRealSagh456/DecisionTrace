@@ -19,7 +19,7 @@ export function DecisionInputCard({input, onEdit, onDelete, ...props}: DecisionI
             {...props}
         >
             <div className="flex flex-col flex-1 min-w-0">
-                <label className="break-all">
+                <label className="wrap-break-word line-clamp-1">
                     {
                         input.descricao
                     }
