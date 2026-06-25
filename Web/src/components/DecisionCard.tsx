@@ -38,7 +38,7 @@ export function DecisionCard({decision, ...props}: DecisionCardProps) {
                 <div className="flex justify-between gap-8">
                     <div className="flex gap-1 items-center">
                         <MessageCircle size={16} className="border-gray-900 fill-purple-600"/>
-                        <span className="text-lg">{decision.inputsCount}</span>
+                        <span className="text-lg">{decision.hypothesisCount}</span>
                     </div>
                     <div className="flex gap-1 items-center">
                         <Vote size={20} className="border-gray-500"/>

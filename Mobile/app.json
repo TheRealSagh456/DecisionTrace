@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "decisiontrace-mobile",
+    "slug": "decisiontrace-mobile",
+    "scheme": "decisiontrace",
+    "web": {
+      "bundler": "metro"
+    },
+    "version": "1.0.0",
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ],
+    "android": {
+      "package": "com.x0nemore.decisiontracemobile"
+    },
+    "ios": {
+      "bundleIdentifier": "com.x0nemore.decisiontracemobile"
+    }
+  }
+}
