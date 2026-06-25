@@ -9,7 +9,8 @@
     "version": "1.0.0",
     "plugins": [
       "expo-router",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-font"
     ],
     "android": {
       "package": "com.x0nemore.decisiontracemobile"

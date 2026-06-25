@@ -50,7 +50,7 @@ export default function Index() {
             <View style={{flex: 1}}>
                 <Input 
                     search 
-                    placeholder='Buscar...' 
+                    placeholder='Buscar por contexto...' 
                     placeholderTextColor={"gray"}
                     onChangeText={setSearch}
                 />
