@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import { areaMap, areaOptions, impactoMap, impactoOptions, resultadoMap, resultadoOptions, statusMap, statusOptions } from "@/utils/translate";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,6 +13,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "@/services/api";
 
 export default function DecisionNew() {
+    const [isEditing, setIsEditing] = useState(false)
+    const [editingDecision, setEditingDecision] = useState<DecisionFormData>()
     const [isStatusOpen, setIsStatusOpen] = useState(false)
     const [isAreaOpen, setIsAreaOpen] = useState(false)
     const [isImpactoOpen, setIsImpactoOpen] = useState(false)
@@ -21,12 +23,12 @@ export default function DecisionNew() {
     const [pickRevDate, setPickRevDate] = useState(false)
     const [formErrors, setFormErrors] = useState<Partial<Record<keyof DecisionFormData, string>>>({})
     const [decisionForm, setDecisionForm] = useState<DecisionFormData>({
-        titulo: undefined,
-        contexto: undefined,
-        area: undefined,
-        impactoEsperado: undefined,
-        status: undefined,
-        responsavel: undefined,
+        titulo: "",
+        contexto: "",
+        area: "Product",
+        impactoEsperado: "low",
+        status: "draft",
+        responsavel: "",
         decisaoTomada: undefined,
         decidedAt: undefined,
         resultadoRevisao: undefined,
@@ -36,32 +38,48 @@ export default function DecisionNew() {
         reviewedAt: undefined
     })
 
-    useEffect(() => {
-        if(
-            decisionForm.status === "draft" ||
-            decisionForm.status === "under_analysis"
-        ) {
-            setDecisionForm(prev => ({
-                ...prev,
-                decisaoTomada: undefined,
-                decidedAt: undefined,
-                resultadoRevisao: undefined,
-                resumoRevisao: undefined,
-                aprendizado: undefined,
-                proximaAcao: undefined,
-                reviewedAt: undefined,
-            }))
-        }
+    const {iddecision} = useLocalSearchParams()
 
-        if(decisionForm.status === "decided") {
-            setDecisionForm(prev => ({
-                ...prev,
-                resultadoRevisao: undefined,
-                resumoRevisao: undefined,
-                aprendizado: undefined,
-                proximaAcao: undefined,
-                reviewedAt: undefined
-            }))
+    useEffect(() => {
+        async function getId() {
+            if(iddecision) {
+                setIsEditing(true)
+                const editingDecision = await api.get(`/decisions/${iddecision}`)
+                setDecisionForm(editingDecision.data)
+                setEditingDecision(editingDecision.data)
+            }
+        }
+        getId()
+    }, [iddecision])
+
+    useEffect(() => {
+        if(!isEditing) {
+            if(
+                decisionForm.status === "draft" ||
+                decisionForm.status === "under_analysis"
+            ) {
+                setDecisionForm(prev => ({
+                    ...prev,
+                    decisaoTomada: undefined,
+                    decidedAt: undefined,
+                    resultadoRevisao: undefined,
+                    resumoRevisao: undefined,
+                    aprendizado: undefined,
+                    proximaAcao: undefined,
+                    reviewedAt: undefined,
+                }))
+            }
+
+            if(decisionForm.status === "decided") {
+                setDecisionForm(prev => ({
+                    ...prev,
+                    resultadoRevisao: undefined,
+                    resumoRevisao: undefined,
+                    aprendizado: undefined,
+                    proximaAcao: undefined,
+                    reviewedAt: undefined
+                }))
+            }
         }
     }, [decisionForm.status])
 
@@ -140,18 +158,25 @@ export default function DecisionNew() {
     
     async function handleSubmit(data: DecisionFormData) {
         try {
-            await api.post("/decisions", data)
+            if(isEditing) {
+                await api.put(`/decisions/${iddecision}`, data)
+                router.back()
+                Alert.alert("Edição concluída!")
+            } else {
+                await api.post("/decisions", data)
+                router.push("/")
+                Alert.alert("Decisão criada com sucesso!")
+            }
         } catch(err) {
             console.log("Erro", err)
-            return
+            Alert.alert("Erro ao salvar a decisão")
         }
-        return Alert.alert("Decisão criada!")
     }
 
     return (
         <SafeAreaView style={{flex: 1}}>
             <Header 
-                page={{title: "Nova Decisão", type: "others"}} 
+                page={{title: !isEditing ? "Nova Decisão" : "Atualização de status", type: "others"}} 
                 backButton 
                 onBack={() => router.back()}
             />
@@ -165,11 +190,11 @@ export default function DecisionNew() {
                     alignItems: "center",
                     minHeight: 800
                 }}>
-                    <View style={{flexDirection: "column", gap:5, width: "100%"}}>
+                    <View style={{flexDirection: "column", gap: 5, width: "100%"}}>
                         <Text style={{fontWeight: 600}}>Area</Text>
                         <Select 
                             open={isAreaOpen} 
-                            onClick={() => setIsAreaOpen(!isAreaOpen)}
+                            onClick={() => {setIsAreaOpen(!isAreaOpen)}}
                             options={areaOptions}
                             placeholder={areaMap[decisionForm.area] || "..."}
                             onSelect={(value: DecisionFormData["area"]) => {
@@ -187,7 +212,7 @@ export default function DecisionNew() {
                         flexDirection: "row", 
                         alignItems: "center", 
                         justifyContent: "space-between",
-                        gap: 10
+                        gap: 10,
                     }}>
                         <View style={{flexDirection: "column", gap:5}}>
                             <Text style={{fontWeight: 600}}>Impacto Esperado</Text>
@@ -230,6 +255,7 @@ export default function DecisionNew() {
                                 ...prev,
                                 titulo: v
                             }))}
+                            disabled={isEditing}
                         />
                         <Input 
                             type="textarea" 
@@ -240,6 +266,7 @@ export default function DecisionNew() {
                                 ...prev,
                                 contexto: v
                             }))}
+                            disabled={isEditing}
                         />
                     </View>
                     <View style={{
@@ -282,13 +309,16 @@ export default function DecisionNew() {
                                         ...prev,
                                         decisaoTomada: v
                                     }))}
+                                    disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                                 />
                             </View>
                             <View style={{flexDirection: "column", gap: 5, width: "100%"}}>
                                 <Text style={{fontSize: 15, fontWeight: 600}}>Decidido em</Text>
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: "white", 
+                                        backgroundColor: (
+                                            (decisionForm.status !== editingDecision?.status)
+                                        ) ? "white" : "#e5e7eb", 
                                         paddingHorizontal: 10,
                                         paddingVertical: 10,
                                         borderWidth: 1,
@@ -296,6 +326,7 @@ export default function DecisionNew() {
                                     }}
                                     onPress={() => setPickDecidedDate(true)}
                                     activeOpacity={0.8}
+                                    disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                                 >
                                     
                                     <Text>
@@ -347,7 +378,7 @@ export default function DecisionNew() {
                                 open={isReviewOpen} 
                                 onClick={() => {setIsReviewOpen(!isReviewOpen)}}
                                 options={resultadoOptions}
-                                placeholder={resultadoMap[decisionForm.resultadoRevisao] || "..."}
+                                placeholder={resultadoMap[decisionForm.resultadoRevisao!] || "..."}
                                 onSelect={(value: DecisionFormData["resultadoRevisao"]) => {
                                     setDecisionForm((prev: DecisionFormData) => ({
                                         ...prev,
@@ -366,6 +397,7 @@ export default function DecisionNew() {
                                 label="Resumo da revisão"
                                 value={decisionForm.resumoRevisao || ""}
                                 error={formErrors.resumoRevisao}
+                                disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                                 onChangeText={v => setDecisionForm(prev => ({
                                 ...prev,
                                 resumoRevisao: v
@@ -378,6 +410,7 @@ export default function DecisionNew() {
                             <Input 
                                 type="textarea" 
                                 label="Aprendizado"
+                                disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                                 value={decisionForm.aprendizado || ""}
                                 error={formErrors.aprendizado}
                                 onChangeText={v => setDecisionForm(prev => ({
@@ -391,7 +424,8 @@ export default function DecisionNew() {
                         }}>
                             <Input 
                                 type="textarea" 
-                                label="Próxima ação" 
+                                label="Próxima ação"
+                                disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                                 value={decisionForm.proximaAcao || ""}
                                 error={formErrors.proximaAcao}
                                 onChangeText={v => setDecisionForm(prev => ({
@@ -408,7 +442,7 @@ export default function DecisionNew() {
                             <Text style={{fontSize: 15, fontWeight: 600}}>Revisada em</Text>
                             <TouchableOpacity 
                                 style={{
-                                    backgroundColor: "white", 
+                                    backgroundColor: (decisionForm.status !== editingDecision?.status) ? "white" : "#e5e7eb", 
                                     paddingHorizontal: 10,
                                     paddingVertical: 10,
                                     borderWidth: 1,
@@ -416,6 +450,7 @@ export default function DecisionNew() {
                                 }}
                                 onPress={() => setPickRevDate(true)}
                                 activeOpacity={0.8}
+                                disabled={isEditing}
                             >
                                 
                                 <Text>
@@ -455,9 +490,18 @@ export default function DecisionNew() {
                     )}
                 </View>
             </ScrollView>
-            <View style={{width: "100%", paddingVertical: 20, alignItems: 'center', justifyContent: "center"}}>
+            <View 
+                style={[{
+                    width: "100%", 
+                    paddingVertical: 20, 
+                    alignItems: 'center', 
+                    justifyContent: "center"
+                }, isEditing && {
+                    flexDirection: "column",
+                    gap: 10
+                }]}>
                 <Button
-                    disabled={isFormInvalid()}
+                    disabled={isFormInvalid() || (isEditing && (decisionForm === editingDecision))}
                     style={{
                         backgroundColor: "#22c55e", 
                         padding: 10, 
@@ -481,6 +525,25 @@ export default function DecisionNew() {
                         Salvar
                     </Text>
                 </Button>
+
+                {isEditing && (
+                    <Button
+                    style={{
+                        backgroundColor: "#ef4444", 
+                        padding: 10, 
+                        width: "80%",
+                        flexDirection: "row",
+                        gap: 5,
+                    }}
+                    onPress={() => router.back()}
+                >
+                    <MaterialCommunityIcons name="cancel" size={20} color={"white"}/>
+                    
+                    <Text style={{fontSize: 18, color: 'white', fontWeight: 600}}>
+                        Cancelar
+                    </Text>
+                </Button>
+                )}
             </View>
         </SafeAreaView>
     )

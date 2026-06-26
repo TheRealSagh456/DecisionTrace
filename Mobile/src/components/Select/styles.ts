@@ -7,10 +7,10 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "#d1d5db",
         width: "100%",
-        height: 41,
-        backgroundColor: "white",
-        alignItems: "flex-start",
-        justifyContent: "center"
+        height: "auto",
+        justifyContent: "flex-start",
+        flexDirection: "row",
+        alignItems: "center"
     },
     overlay: {
         position: "absolute", 
@@ -19,6 +19,6 @@ export const styles = StyleSheet.create({
         zIndex: 50, 
         top:"100%", 
         flex: 1, 
-        backgroundColor: "white"
+        backgroundColor: "white",
     }
 })

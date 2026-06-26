@@ -165,7 +165,7 @@ export default function Index() {
                                     open={isStatusOpen} 
                                     onClick={() => setIsStatusOpen(!isStatusOpen)}
                                     options={statusOptions}
-                                    placeholder={statusMap[filterOptions.status] || "Todos"}
+                                    placeholder={statusMap[filterOptions.status!] || "Todos"}
                                     onSelect={(value) => {
                                         setFilterOptions((prev) => ({
                                             ...prev,
@@ -182,7 +182,7 @@ export default function Index() {
                                     open={isAreaOpen} 
                                     onClick={() => setIsAreaOpen(!isAreaOpen)}
                                     options={areaOptions}
-                                    placeholder={areaMap[filterOptions.area] || "Todos"}
+                                    placeholder={areaMap[filterOptions.area!] || "Todos"}
                                     onSelect={(value) => {
                                         setFilterOptions((prev) => ({
                                             ...prev,
@@ -199,7 +199,7 @@ export default function Index() {
                                     open={isImpactoOpen} 
                                     onClick={() => setIsImpactoOpen(!isImpactoOpen)}
                                     options={impactoOptions}
-                                    placeholder={impactoMap[filterOptions.impactoEsperado] || "Todos"}
+                                    placeholder={impactoMap[filterOptions.impactoEsperado!] || "Todos"}
                                     onSelect={(value) => {
                                         setFilterOptions((prev) => ({
                                             ...prev,
