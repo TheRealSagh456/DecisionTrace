@@ -9,10 +9,9 @@ import Button from '@/components/Button';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDebounce } from "use-debounce"
 import Header from '@/components/Header';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import Select from '@/components/Select';
-import { statusArray, statusMap } from '@/utils/translate';
-import { Option } from '../@types';
+import { areaMap, areaOptions, impactoMap, impactoOptions, statusMap, statusOptions } from '@/utils/translate';
 
 export default function Index() {
     const [decisions, setDecisions] = useState<Decision[]>([])
@@ -20,13 +19,33 @@ export default function Index() {
     const [debouncedSearch] = useDebounce(search, 400)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isStatusOpen, setIsStatusOpen] = useState(false)
+    const [isAreaOpen, setIsAreaOpen] = useState(false)
+    const [isImpactoOpen, setIsImpactoOpen] = useState(false)
+    const [showingFiltered, setShowingFiltered] = useState(false)
+    const [filterOptions, setFilterOptions] = useState<{
+        area: string | undefined
+        status: string | undefined
+        impactoEsperado: string | undefined
+    }>({
+        area: undefined,
+        status: undefined,
+        impactoEsperado: undefined
+    })
+    const [appliedFilters, setAppliedFilters] = useState({
+        area: undefined,
+        status: undefined,
+        impactoEsperado: undefined
+    })
 
     useEffect(() => {
         async function fetchDecisions() {
             try{
                 const response = await api.get("/decisions", {
                     params: {
-                        q: debouncedSearch || undefined
+                        q: debouncedSearch || undefined,
+                        status: showingFiltered ? appliedFilters.status : undefined,
+                        area: showingFiltered ? appliedFilters.area : undefined,
+                        impactoEsperado: showingFiltered ? appliedFilters.impactoEsperado : undefined
                     }
                 })
 
@@ -39,14 +58,9 @@ export default function Index() {
                 console.log("ERRO", err)
             }
         }
-        console.log("Aopa")
         fetchDecisions()
-    }, [debouncedSearch])
-
-    const statusOptions: Option[] = Object.entries(statusMap).map(([value, label]) => ({
-        value,
-        label,
-    }))
+        console.log("Fetchou!")
+    }, [debouncedSearch, showingFiltered, appliedFilters])
 
     return (
     <SafeAreaView style={[styles.container, {position: "relative"}]}>
@@ -89,14 +103,14 @@ export default function Index() {
                 />
             )}
         />
-            <Button 
-                style={{backgroundColor: "purple", padding: 10, width: "80%"}}
-                onPress={() => router.push("/decisions/new")}
-            >
-                <Text style={{fontSize: 18, color: 'white', fontWeight: 600}}>
-                    Novo
-                </Text>
-            </Button>
+        <Button 
+            style={{backgroundColor: "purple", padding: 10, width: "80%", marginVertical: 10, marginTop: 20}}
+            onPress={() => router.push("/decisions/new")}
+        >
+            <Text style={{fontSize: 18, color: 'white', fontWeight: 600}}>
+                Novo
+            </Text>
+        </Button>
 
             {isFiltering && (
                 <>
@@ -113,44 +127,151 @@ export default function Index() {
                     activeOpacity={1}
                     onPress={() => setIsFiltering(false)}
                     />
-                    <View style={{
+                    <SafeAreaView style={{
                         position: "absolute",
                         zIndex: 40,
                         width: "100%",
                         alignSelf: "center",
-                        height: "60%",
+                        height: "67%",
                         backgroundColor: "white",
                         bottom: 0,
                         borderTopLeftRadius: 28,
                         borderTopRightRadius: 28,
                         paddingTop: 15
-                    }}>
+                    }} edges={["bottom", "left", "right"]}>
 
-                    <Text 
-                        style={{
-                            fontSize: 20, 
-                            fontWeight: 600,
-                            paddingLeft: 20
-                        }}
-                    >
-                        Filtragem
-                    </Text>
-                    <View 
-                        style={{
-                            backgroundColor: "gray", 
-                            height: 2, 
-                            width: "100%", 
-                            borderRadius: 40,
-                            marginVertical: 15
-                        }}
-                    />
-                    <Select 
-                        open={isStatusOpen} 
-                        onClick={() => setIsStatusOpen(!isStatusOpen)}
-                        options={statusOptions}
-                        placeholder='draft'
-                    />
-                    </View>
+                        <Text 
+                            style={{
+                                fontSize: 20, 
+                                fontWeight: 600,
+                                paddingLeft: 20
+                            }}
+                        >
+                            Filtragem
+                        </Text>
+                        <View 
+                            style={{
+                                backgroundColor: "gray", 
+                                height: 2, 
+                                width: "100%", 
+                                borderRadius: 40,
+                                marginVertical: 15
+                            }}
+                        />
+                        <View style={{flexDirection: "column", gap: 20, paddingHorizontal: 20}}>
+                            <View style={{flexDirection: "column", gap:5}}>
+                                <Text style={{fontWeight: 600}}>Status</Text>
+                                <Select 
+                                    open={isStatusOpen} 
+                                    onClick={() => setIsStatusOpen(!isStatusOpen)}
+                                    options={statusOptions}
+                                    placeholder={statusMap[filterOptions.status] || "Todos"}
+                                    onSelect={(value) => {
+                                        setFilterOptions((prev) => ({
+                                            ...prev,
+                                            status: value
+                                        }))
+                                        setIsStatusOpen(!isStatusOpen)
+                                    }}
+                                    selected={filterOptions.status}
+                                />
+                            </View>
+                            <View style={{flexDirection: "column", gap:5}}>
+                                <Text style={{fontWeight: 600}}>Area</Text>
+                                <Select 
+                                    open={isAreaOpen} 
+                                    onClick={() => setIsAreaOpen(!isAreaOpen)}
+                                    options={areaOptions}
+                                    placeholder={areaMap[filterOptions.area] || "Todos"}
+                                    onSelect={(value) => {
+                                        setFilterOptions((prev) => ({
+                                            ...prev,
+                                            area: value
+                                        }))
+                                        setIsAreaOpen(!isAreaOpen)
+                                    }}
+                                    selected={filterOptions.area}
+                                />
+                            </View>
+                            <View style={{flexDirection: "column", gap:5}}>
+                                <Text style={{fontWeight: 600}}>Impacto Esperado</Text>
+                                <Select 
+                                    open={isImpactoOpen} 
+                                    onClick={() => setIsImpactoOpen(!isImpactoOpen)}
+                                    options={impactoOptions}
+                                    placeholder={impactoMap[filterOptions.impactoEsperado] || "Todos"}
+                                    onSelect={(value) => {
+                                        setFilterOptions((prev) => ({
+                                            ...prev,
+                                            impactoEsperado: value
+                                        }))
+                                        setIsImpactoOpen(!isImpactoOpen)
+                                    }}
+                                    selected={filterOptions.impactoEsperado}
+                                />
+                            </View>
+                        </View>
+                        <View style={{
+                            flex: 1, 
+                            flexDirection:'column', 
+                            gap: 10, 
+                            alignItems: "center", 
+                            justifyContent: "center",
+                        }}>
+                            <Button
+                                style={{
+                                    backgroundColor: "purple", 
+                                    padding: 10, 
+                                    width: "80%",
+                                    flexDirection: "row",
+                                    gap: 5
+                                }}
+                                onPress={() => {
+                                    setShowingFiltered(true)
+                                    setAppliedFilters(filterOptions)
+                                    setIsFiltering(false)
+                                    setIsAreaOpen(false)
+                                    setIsStatusOpen(false)
+                                    setIsImpactoOpen(false)
+                                }}
+                            >
+                                <MaterialCommunityIcons name="filter" size={20} color={"white"}/>
+                                
+                                <Text style={{fontSize: 18, color: 'white', fontWeight: 600}}>
+                                    Filtrar
+                                </Text>
+                            </Button>
+                            {showingFiltered && (
+                                <Button 
+                                style={{
+                                    backgroundColor: "#525252", 
+                                    padding: 10, 
+                                    width: "80%",
+                                    flexDirection: "row",
+                                    gap: 5
+                                }}
+                                onPress={() => {
+                                    setShowingFiltered(false)
+                                    setIsFiltering(false)
+                                    setIsAreaOpen(false)
+                                    setIsStatusOpen(false)
+                                    setIsImpactoOpen(false)
+                                    setFilterOptions({
+                                        area: undefined,
+                                        impactoEsperado: undefined,
+                                        status: undefined
+                                    })
+                                }}
+                            >
+                                <MaterialCommunityIcons name="filter-off" size={20} color={"white"}/>
+                                
+                                <Text style={{fontSize: 18, color: 'white', fontWeight: 600}}>
+                                    Remover Filtro
+                                </Text>
+                            </Button>
+                            )}
+                        </View>
+                    </SafeAreaView>
                 </>
             )}
     </SafeAreaView>

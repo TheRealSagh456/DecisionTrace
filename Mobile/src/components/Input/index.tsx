@@ -16,7 +16,7 @@ export default function Input({
     search,
     label,
     type = "text",
-    rows,
+    rows = 4,
     disabled,
     defaultValue,
     value,
@@ -26,14 +26,15 @@ export default function Input({
     return (
         <View
             style={{
-                gap: 4,
+                gap: 3,
             }}
         >
             {label && (
                 <Text
                     style={{
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: "600",
+                        marginBottom: 1
                     }}
                 >
                     {label}
@@ -46,9 +47,10 @@ export default function Input({
                     alignItems: type === "textarea" ? "flex-start" : "center",
                     borderWidth: 1,
                     borderColor: error ? "#ef4444" : "#d1d5db",
-                    borderRadius: 8,
+                    borderRadius: 2,
                     paddingHorizontal: 12,
                     backgroundColor: disabled ? "#e5e7eb" : "#fff",
+                    minHeight: type === "textarea" ? rows * 24 : 44
                 }}
             >
                 {search && (
@@ -71,11 +73,10 @@ export default function Input({
                     numberOfLines={type === "textarea" ? rows ?? 3 : 1}
                     style={{
                         flex: 1,
-                        minHeight: type === "textarea" ? (rows ?? 3) * 24 : 48,
-                        paddingVertical: type === "textarea" ? 12 : 0,
                         textAlignVertical:
                             type === "textarea" ? "top" : "center",
                         color: "#000",
+                        height: type === "textarea" ? "100%" : undefined
                     }}
                 />
             </View>

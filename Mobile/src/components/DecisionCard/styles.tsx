@@ -4,11 +4,11 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: "column", 
-        gap: 8,
+        gap: 7,
         borderWidth: 1,
         borderColor: "#d1d5db",
         paddingHorizontal: 10,
-        paddingVertical: 7
+        paddingVertical: 6
     },
     topText: {
         fontSize: 15,

@@ -1,6 +1,4 @@
-export const statusArray = ["draft", "under_analysis", "decided", "reviewed", "reversed"]
-
-export const areaArray = ["Product", "Engineering", "Design", "Operations", "Business", "Other"]
+import { Option } from "@/@types"
 
 export const statusMap: Record<string, string> = {
   draft: "Rascunho",
@@ -9,6 +7,11 @@ export const statusMap: Record<string, string> = {
   reviewed: "Revisada",
   reversed: "Revertida"
 }
+
+export const statusOptions: Option[] = Object.entries(statusMap).map(([value, label]) => ({
+    value,
+    label,
+}))
 
 export const areaMap: Record<string, string> = {
   Product: "Produto",
@@ -19,12 +22,22 @@ export const areaMap: Record<string, string> = {
   Other: "Outro"
 }
 
+export const areaOptions: Option[] = Object.entries(areaMap).map(([value, label]) => ({
+    value,
+    label,
+}))
+
 export const impactoMap: Record<string, string> = {
   low: "Baixo",
   medium: "Médio",
   high: "Alto",
   critical: "Crítico"
 }
+
+export const impactoOptions: Option[] = Object.entries(impactoMap).map(([value, label]) => ({
+    value,
+    label,
+}))
 
 export const resultadoMap: Record<string, string> = {
   confirmed: "Confimada", 
@@ -33,13 +46,28 @@ export const resultadoMap: Record<string, string> = {
   inconclusive: "Inconclusivo"
 }
 
+export const resultadoOptions: Option[] = Object.entries(resultadoMap).map(([value, label]) => ({
+    value,
+    label,
+}))
+
 export const tipoMap: Record<string, string> = {
   hypothesis: "Hipótese",
   evidence: "Evidência"
 }
+
+export const tipoOptions: Option[] = Object.entries(tipoMap).map(([value, label]) => ({
+    value,
+    label,
+}))
 
 export const confiancaMap: Record<string, string> = {
   low: "Baixa",
   medium: "Média",
   high: "Alta"
 }
+
+export const confiancaOptions: Option[] = Object.entries(confiancaMap).map(([value, label]) => ({
+    value,
+    label,
+}))
