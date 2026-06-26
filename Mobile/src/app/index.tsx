@@ -10,12 +10,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDebounce } from "use-debounce"
 import Header from '@/components/Header';
 import { MaterialIcons } from '@expo/vector-icons';
+import Select from '@/components/Select';
+import { statusArray, statusMap } from '@/utils/translate';
+import { Option } from '../@types';
 
 export default function Index() {
     const [decisions, setDecisions] = useState<Decision[]>([])
     const [search, setSearch] = useState("")
     const [debouncedSearch] = useDebounce(search, 400)
     const [isFiltering, setIsFiltering] = useState(false)
+    const [isStatusOpen, setIsStatusOpen] = useState(false)
 
     useEffect(() => {
         async function fetchDecisions() {
@@ -39,6 +43,11 @@ export default function Index() {
         fetchDecisions()
     }, [debouncedSearch])
 
+    const statusOptions: Option[] = Object.entries(statusMap).map(([value, label]) => ({
+        value,
+        label,
+    }))
+
     return (
     <SafeAreaView style={[styles.container, {position: "relative"}]}>
         <Header page={{type: "main", title: "DecisionTrace"}}/>
@@ -49,6 +58,7 @@ export default function Index() {
         }}>
             <View style={{flex: 1}}>
                 <Input 
+                    type='text'
                     search 
                     placeholder='Buscar por contexto...' 
                     placeholderTextColor={"gray"}
@@ -103,8 +113,43 @@ export default function Index() {
                     activeOpacity={1}
                     onPress={() => setIsFiltering(false)}
                     />
-                    <View>
+                    <View style={{
+                        position: "absolute",
+                        zIndex: 40,
+                        width: "100%",
+                        alignSelf: "center",
+                        height: "60%",
+                        backgroundColor: "white",
+                        bottom: 0,
+                        borderTopLeftRadius: 28,
+                        borderTopRightRadius: 28,
+                        paddingTop: 15
+                    }}>
 
+                    <Text 
+                        style={{
+                            fontSize: 20, 
+                            fontWeight: 600,
+                            paddingLeft: 20
+                        }}
+                    >
+                        Filtragem
+                    </Text>
+                    <View 
+                        style={{
+                            backgroundColor: "gray", 
+                            height: 2, 
+                            width: "100%", 
+                            borderRadius: 40,
+                            marginVertical: 15
+                        }}
+                    />
+                    <Select 
+                        open={isStatusOpen} 
+                        onClick={() => setIsStatusOpen(!isStatusOpen)}
+                        options={statusOptions}
+                        placeholder='draft'
+                    />
                     </View>
                 </>
             )}

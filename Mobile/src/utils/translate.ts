@@ -1,3 +1,7 @@
+export const statusArray = ["draft", "under_analysis", "decided", "reviewed", "reversed"]
+
+export const areaArray = ["Product", "Engineering", "Design", "Operations", "Business", "Other"]
+
 export const statusMap: Record<string, string> = {
   draft: "Rascunho",
   under_analysis: "Em análise",

@@ -24,6 +24,11 @@ export type DecisionFormData = Omit<Decision,
   'iddecision' | 'createdAt' | 'updatedAt' | 'inputsCount' | 'hypothesisCount' | 'evidencesCount'
 >
 
+export type Option = {
+    label: string;
+    value: string;
+};
+
 export interface DecisionInput {
   idinput: string
   iddecision: string
