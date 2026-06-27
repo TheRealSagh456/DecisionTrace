@@ -20,6 +20,7 @@ export default function DecisionDetail() {
     const [isTipoOpen, setIsTipoOpen] = useState(false)
     const [isConfiancaOpen, setIsConfiancaOpen] = useState(false)
     const {iddecision} = useLocalSearchParams()
+    const [inputErrors, setInputErrors] = useState<Partial<Record<keyof DecisionInput, string>>>({})
 
     async function handleDelete() {
         Alert.alert(
@@ -45,6 +46,22 @@ export default function DecisionDetail() {
 
         setDecision(decisionResponse.data)
         setDecisionInputs(inputsResponse.data)
+    }
+
+    function validateForm() {
+        const errors: Partial<Record<keyof DecisionInput, string>> = {}
+
+        if (!inputForm?.descricao || inputForm.descricao.trim().length < 10) {
+            errors.descricao = "Mínimo de 10 caracteres."
+        }
+
+        if (!inputForm?.fonte || inputForm.fonte.trim().length < 2) {
+            errors.fonte = "Mínimo de 2 caracteres."
+        }
+
+        setInputErrors(errors)
+
+        return Object.keys(errors).length > 0
     }
 
     useFocusEffect(
@@ -379,6 +396,7 @@ export default function DecisionDetail() {
                                         onChangeText={v => setInputForm(prev => ({...prev, descricao: v}))}
                                         placeholder="Descreva a hipótese ou evidência..."
                                         placeholderTextColor="gray"
+                                        error={inputErrors.descricao}
                                     />
                                 </View>
 
@@ -390,6 +408,7 @@ export default function DecisionDetail() {
                                         onChangeText={v => setInputForm(prev => ({...prev, fonte: v}))}
                                         placeholder="De onde veio essa informação?"
                                         placeholderTextColor="gray"
+                                        error={inputErrors.fonte}
                                     />
                                 </View>
 
@@ -420,19 +439,27 @@ export default function DecisionDetail() {
                                     width: "80%", flexDirection: "row", gap: 5
                                 }}
                                 onPress={async () => {
-                                    try {
-                                        if(inputForm?.idinput) {
-                                            await api.put(`/inputs/${inputForm.idinput}`, inputForm)
-                                            setDecisionInputs(prev => prev.map(i => 
-                                                i.idinput === inputForm.idinput ? {...i, ...inputForm} as DecisionInput : i
-                                            ))
-                                        } else {
-                                            const response = await api.post(`/decisions/${iddecision}/inputs`, inputForm)
-                                            setDecisionInputs(prev => [...prev, response.data])
-                                        }
-                                        setInputModal(false)
-                                    } catch(err) {
-                                        Alert.alert("Erro ao salvar insumo")
+                                    
+                                    const error = validateForm()
+
+                                    if(!error) {
+                                        try {
+                                            if(inputForm?.idinput) {
+                                                await api.put(`/inputs/${inputForm.idinput}`, inputForm)
+                                                setDecisionInputs(prev => prev.map(i => 
+                                                    i.idinput === inputForm.idinput ? {...i, ...inputForm} as DecisionInput : i
+                                                ))
+                                            } else {
+                                                const response = await api.post(`/decisions/${iddecision}/inputs`, inputForm)
+                                                setDecisionInputs(prev => [...prev, response.data])
+                                            }
+
+                                            setInputModal(false)
+                                        } catch(err) {
+                                            Alert.alert("Erro ao salvar insumo")
+                                        }    
+                                    } else {
+                                        Alert.alert("Campos pendentes", "Por favor corrija os erros no formulário")
                                     }
                                 }}
                             >

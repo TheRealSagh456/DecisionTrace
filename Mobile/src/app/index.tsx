@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Decision } from '../@types';
 import { api } from '../services/api';
@@ -37,30 +37,32 @@ export default function Index() {
         impactoEsperado: undefined
     })
 
-    useEffect(() => {
-        async function fetchDecisions() {
-            try{
-                const response = await api.get("/decisions", {
-                    params: {
-                        q: debouncedSearch || undefined,
-                        status: showingFiltered ? appliedFilters.status : undefined,
-                        area: showingFiltered ? appliedFilters.area : undefined,
-                        impactoEsperado: showingFiltered ? appliedFilters.impactoEsperado : undefined
+    useFocusEffect(
+        useCallback(() => {
+            async function fetchDecisions() {
+                try{
+                    const response = await api.get("/decisions", {
+                        params: {
+                            q: debouncedSearch || undefined,
+                            status: showingFiltered ? appliedFilters.status : undefined,
+                            area: showingFiltered ? appliedFilters.area : undefined,
+                            impactoEsperado: showingFiltered ? appliedFilters.impactoEsperado : undefined
+                        }
+                    })
+    
+                    if(!response) {
+                        return console.log("Nenhuma decision encontrada")
                     }
-                })
-
-                if(!response) {
-                    return console.log("Nenhuma decision encontrada")
+    
+                    setDecisions(response.data.items)
+                } catch (err) {
+                    console.log("ERRO", err)
                 }
-
-                setDecisions(response.data.items)
-            } catch (err) {
-                console.log("ERRO", err)
             }
-        }
-        fetchDecisions()
-        console.log("Fetchou!")
-    }, [debouncedSearch, showingFiltered, appliedFilters])
+            fetchDecisions()
+            console.log("Fetchou!")
+        }, [debouncedSearch, showingFiltered, appliedFilters])
+    )
 
     return (
     <SafeAreaView style={[styles.container, {position: "relative"}]}>
@@ -85,7 +87,7 @@ export default function Index() {
                     width: 50, 
                     alignItems: "center", 
                     justifyContent: "center", 
-                    height: 43
+                    alignSelf: "stretch"
                 }}
                 onPress={() => setIsFiltering(true)}
                 >
@@ -94,6 +96,12 @@ export default function Index() {
         </View>
         <FlatList
             data={decisions}
+            style={{width: "100%"}}
+            ListEmptyComponent={() => (
+                <View style={{alignItems: "center", paddingTop: 40}}>
+                    <Text style={{color: "gray", fontSize: 16}}>Nenhuma decisão encontrada</Text>
+                </View>
+            )}
             keyExtractor={item => item.iddecision}
             renderItem={({item}) => (
                 <DecisionCard

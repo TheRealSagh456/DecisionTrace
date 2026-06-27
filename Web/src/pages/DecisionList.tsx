@@ -22,6 +22,7 @@ export function DecisionList() {
     const [totalPages, setTotalPages] = useState(1)
     const [isFilterUp, setIsFilterUp] = useState(false)
     const [isFiltering, setIsFiltering] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [filterData, setFitlerData] = useState<DecisionsFilter>({
         status: undefined,
         area: undefined,
@@ -35,6 +36,7 @@ export function DecisionList() {
         const limit = 5
 
         async function fetchDecisions() {
+            setIsLoading(true)
             const response = await api.get("/decisions", {
                 params: {
                     q: debouncedSearch || undefined,
@@ -49,6 +51,7 @@ export function DecisionList() {
             const total = response.data.total
 
             setTotalPages(Math.ceil(total/limit))
+            setIsLoading(false)
         }
         fetchDecisions()
     }, [debouncedSearch, filterData, page])
@@ -77,7 +80,7 @@ export function DecisionList() {
         setIsFiltering(false)
     }
     
-    if(decisions.length === 0) return (
+    if(isLoading) return (
         <DecisionContainer>
             <p className="text-lg items-center justify-center">Carregando...</p>
         </DecisionContainer>

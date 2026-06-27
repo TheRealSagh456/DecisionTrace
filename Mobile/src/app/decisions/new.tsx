@@ -129,20 +129,20 @@ export default function DecisionNew() {
         const notDraftnorAnalisys = ["decided", "reviewed", "reversed"].includes(decisionForm.status || "")
 
         if(notDraftnorAnalisys && decisionForm.decisaoTomada) {
-            if (decisionForm.decisaoTomada!.trim().length < 5) {
-                errors.decisaoTomada = "Mínimo de 5 caracteres."
+            if (!decisionForm.decisaoTomada || decisionForm.decisaoTomada.trim().length < 10) {
+                errors.decisaoTomada = "Mínimo de 10 caracteres."
             }
         }
 
         const needRev = ["reviewed", "reversed"].includes(decisionForm.status || "")
 
         if(needRev) {
-            if (decisionForm.resumoRevisao!.trim().length < 5) {
-                errors.resumoRevisao = "Mínimo de 5 caracteres."
+            if (decisionForm.resumoRevisao!.trim().length < 10) {
+                errors.resumoRevisao = "Mínimo de 10 caracteres."
             }
             
-            if (decisionForm.aprendizado!.trim().length < 5) {
-                errors.aprendizado = "Mínimo de 5 caracteres."
+            if (decisionForm.aprendizado!.trim().length < 10) {
+                errors.aprendizado = "Mínimo de 10 caracteres."
             }
 
             if (decisionForm.proximaAcao!.trim().length < 5) {
@@ -450,7 +450,7 @@ export default function DecisionNew() {
                                 }}
                                 onPress={() => setPickRevDate(true)}
                                 activeOpacity={0.8}
-                                disabled={isEditing}
+                                disabled={isEditing && (decisionForm.status === editingDecision?.status)}
                             >
                                 
                                 <Text>
