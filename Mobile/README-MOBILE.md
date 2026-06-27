@@ -14,6 +14,7 @@ App mobile para gerenciamento de decisões.
 
 ```bash
 npm run mobile
+adb devices
 
 Android   ->  npm run android
 iOS       ->  npm run ios
