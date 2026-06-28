@@ -79,12 +79,6 @@ export function DecisionList() {
         setIsFilterUp(false)
         setIsFiltering(false)
     }
-    
-    if(isLoading) return (
-        <DecisionContainer>
-            <p className="text-lg items-center justify-center">Carregando...</p>
-        </DecisionContainer>
-    )
 
     return (
         <DecisionContainer>
@@ -93,105 +87,113 @@ export function DecisionList() {
                 onFilter={() => setIsFilterUp(true)}
                 onSearch={setSearch}
             />
-            <div className="flex flex-col gap-7">
-                {decisions.length > 0 ? 
-                    decisions.map((decision) => (
-                        <DecisionCard 
-                            key={decision.iddecision} 
-                            decision={decision}
-                            onClick={() => navigate(`/decisions/${decision.iddecision}`)}
-                        />
-                    )) : (
-                        <label className="flex items-center justify-center font-bold">
-                            Nenhuma decisão encontrada...
-                        </label>
-                    )
-                }
-            </div>
-
-            {isFilterUp && (
-                <Modal isOpen={isFilterUp} onClose={() => setIsFilterUp(false)} title="Filtrar por:">
-                    <form onSubmit={handleSubmit(data => onFilter(data as DecisionsFilter))}>
-                        <div className="py-3 my-4 px-5 flex flex-col gap-5 bg-gray-50 rounded-lg">
-                            <Input 
-                                type="select" 
-                                label="Status" 
-                                options={[{value: "", label: "Todos"}, ...statusOptions]} 
-                                defaultValue="Todos"
-                                className="w-full border pl-3 h-10"
-                                register={register("status")}
-                            />
-                            <Input 
-                                type="select" 
-                                label="Area" 
-                                options={[{value: "", label: "Todos"}, ...areaOptions]} 
-                                defaultValue="Todos"
-                                className="w-full border pl-3 h-10"
-                                register={register("area")}
-                            />
-                            <Input 
-                                type="select" 
-                                label="Impacto Esperado" 
-                                options={[{value: "", label: "Todos"}, ...impactoOptions]} 
-                                defaultValue="Todos"
-                                className="w-full border pl-3 h-10"
-                                register={register("impactoEsperado")}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            <Button 
-                                variant="new" 
-                                className="w-full"
-                                type="submit" 
-                            >
-                                <label>
-                                    Filtrar
-                                </label>
-                            </Button>
-                            {
-                                isFiltering
-                                && (
-                                    <Button 
-                                        variant="back"
-                                        className="w-full"
-                                        type="button"
-                                        onClick={removeFilters}
-                                    >
-                                        <div className="flex flex-row gap-3">
-                                            <LucideFilterX size={18}/>
-                                            <label>
-                                                Remover filtros
-                                            </label>
-                                        </div>
-                                    </Button>
-                                )
-                            }
-                        </div>
-                    </form>
-                </Modal>
+            {isLoading && (
+                <p className="text-center">Carregando...</p>
             )}
-
-            <div className="fixed bottom-0 left-0 right-0 flex w-full items-center justify-center py-7 h-auto gap-3">
-                <Button 
-                    variant="new"
-                    onClick={() => page>=2 && setPage(page-1)}
-                    disabled={page === 1}
-                >
-                    <LucideChevronLeft size={20}/>
-                </Button>
-
-                <label className="text-xl">
-                    {`${page} de ${totalPages} `}
-                </label>
-
-                <Button 
-                    variant="new"
-                    onClick={() => page<totalPages && setPage(page+1)}
-                    disabled={page >= totalPages}
-                >
-                    <LucideChevronRight size={20}/>
-                </Button>
-            </div>
+            {!isLoading && (
+                <>
+                
+                    <div className="flex flex-col gap-7">
+                        {decisions.length > 0 ? 
+                            decisions.map((decision) => (
+                                <DecisionCard 
+                                    key={decision.iddecision} 
+                                    decision={decision}
+                                    onClick={() => navigate(`/decisions/${decision.iddecision}`)}
+                                />
+                            )) : (
+                                <label className="flex items-center justify-center font-bold">
+                                    Nenhuma decisão encontrada...
+                                </label>
+                            )
+                        }
+                    </div>
+        
+                    {isFilterUp && (
+                        <Modal isOpen={isFilterUp} onClose={() => setIsFilterUp(false)} title="Filtrar por:">
+                            <form onSubmit={handleSubmit(data => onFilter(data as DecisionsFilter))}>
+                                <div className="py-3 my-4 px-5 flex flex-col gap-5 bg-gray-50 rounded-lg">
+                                    <Input 
+                                        type="select" 
+                                        label="Status" 
+                                        options={[{value: "", label: "Todos"}, ...statusOptions]} 
+                                        defaultValue="Todos"
+                                        className="w-full border pl-3 h-10"
+                                        register={register("status")}
+                                    />
+                                    <Input 
+                                        type="select" 
+                                        label="Area" 
+                                        options={[{value: "", label: "Todos"}, ...areaOptions]} 
+                                        defaultValue="Todos"
+                                        className="w-full border pl-3 h-10"
+                                        register={register("area")}
+                                    />
+                                    <Input 
+                                        type="select" 
+                                        label="Impacto Esperado" 
+                                        options={[{value: "", label: "Todos"}, ...impactoOptions]} 
+                                        defaultValue="Todos"
+                                        className="w-full border pl-3 h-10"
+                                        register={register("impactoEsperado")}
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-3">
+                                    <Button 
+                                        variant="new" 
+                                        className="w-full"
+                                        type="submit" 
+                                    >
+                                        <label>
+                                            Filtrar
+                                        </label>
+                                    </Button>
+                                    {
+                                        isFiltering
+                                        && (
+                                            <Button 
+                                                variant="back"
+                                                className="w-full"
+                                                type="button"
+                                                onClick={removeFilters}
+                                            >
+                                                <div className="flex flex-row gap-3">
+                                                    <LucideFilterX size={18}/>
+                                                    <label>
+                                                        Remover filtros
+                                                    </label>
+                                                </div>
+                                            </Button>
+                                        )
+                                    }
+                                </div>
+                            </form>
+                        </Modal>
+                    )}
+        
+                    <div className="fixed bottom-0 left-0 right-0 flex w-full items-center justify-center py-7 h-auto gap-3">
+                        <Button 
+                            variant="new"
+                            onClick={() => page>=2 && setPage(page-1)}
+                            disabled={page === 1}
+                        >
+                            <LucideChevronLeft size={20}/>
+                        </Button>
+        
+                        <label className="text-xl">
+                            {`${page} de ${totalPages} `}
+                        </label>
+        
+                        <Button 
+                            variant="new"
+                            onClick={() => page<totalPages && setPage(page+1)}
+                            disabled={page >= totalPages}
+                        >
+                            <LucideChevronRight size={20}/>
+                        </Button>
+                    </div>
+                </>
+            )}
         </DecisionContainer>
 
     )

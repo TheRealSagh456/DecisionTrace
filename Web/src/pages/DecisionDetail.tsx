@@ -280,7 +280,6 @@ export function DecisionDetails() {
                                 defaultValue={decision?.resultadoRevisao || undefined}
                                 register={isEditing ? registerDecision('resultadoRevisao', {
                                     required: "Resultado da revisão é obrigatório",
-                                    minLength: {value: 10, message: "Mínimo de 10 caracteres"}
                                 }) : undefined}
                                 error={decisionErrors.resultadoRevisao?.message}
                                 disabled={!isEditing}

@@ -9,4 +9,4 @@ export const db = knex({
     filename: process.env.DATABASE_URL ?? './src/db/database.db',
   },
   useNullAsDefault: true,
-})
+}) 
